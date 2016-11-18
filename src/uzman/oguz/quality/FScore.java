@@ -23,11 +23,12 @@ public class FScore extends QualityFunction{
 
         //p(x|c) =p(x,c)/p(c)
         double pXandC = pCandX;
-        double pC = positiveMatches.size();
+        double pC = positiveDatabase.length;
         double pXgivenC = pXandC/pC;
 
         //Calculate F score using precision and recall
-        return 2*pCgivenX*pXgivenC/(pXgivenC + pCgivenX);
+        double score = 2*pCgivenX*pXgivenC/(pXgivenC + pCgivenX);
+        return Double.isNaN(score) ? 0: score;
     }
 
     @Override

@@ -29,6 +29,6 @@ public class ArrayIndexComparator implements Comparator<Integer>
     {
         // Autounbox from Integer to int to use as array indexes
         double diff = array[index1]-array[index2];
-        return (diff) > 0.0 ? 1 : (diff == 0.0 ? 0 : -1 );
+        return (diff) > 0.0 ? -1 : (diff == 0.0 ? 0 : 1 );
     }
 }

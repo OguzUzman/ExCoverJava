@@ -172,6 +172,7 @@ public class ExCoverAlgorithm {
         ArrayIndexComparator comparator = new ArrayIndexComparator(qualities);
         Integer[] indexes = comparator.createIndexArray();
         Arrays.sort(indexes, comparator);
+        System.out.println("Sorted");
     }
 
 }

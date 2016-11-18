@@ -5,7 +5,7 @@ import java.util.BitSet;
 import java.util.List;
 
 /**
- * Created by oguz on 18/11/2016.
+ * Created by Oguz Uzman on 18/11/2016.
  */
 public class Matcher {
     public static List<Integer> findMatches(BitSet[] database, BitSet pattern, List<Integer> existingMatches,
@@ -43,6 +43,6 @@ public class Matcher {
 
         flippedPattern.or(transaction);// Sum them
 
-        return flippedPattern.cardinality() != attributeCounter; // They are
+        return flippedPattern.cardinality() == attributeCounter; // They are equal
     }
 }

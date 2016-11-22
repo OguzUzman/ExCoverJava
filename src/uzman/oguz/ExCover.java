@@ -32,7 +32,9 @@ public class ExCover {
 
         ExCoverAlgorithm exCoverAlgorithm = new ExCoverAlgorithm(positiveClassesPath, negativeClassesPath, score);
 
+        long algorithmStart = System.currentTimeMillis();
         exCoverAlgorithm.run();
+        System.out.println("Algotithm took " + (System.currentTimeMillis()- algorithmStart)+ " milis");
 
         ArrayList<PatternQualityPair> patternQualityPairs = exCoverAlgorithm.getPatternQualityPairs();
         ArrayList<Integer>[] transactionPatternMapping = exCoverAlgorithm.getTransactionPatternMapping();

@@ -4,7 +4,6 @@ package uzman.oguz;
  * Created by oguz on 17/11/2016.
  */
 
-import java.io.*;
 import java.util.*;
 
 /**
@@ -56,9 +55,4 @@ public class ExCover {
         }
 
     }
-
-
-
-
-
 }

@@ -124,7 +124,7 @@ public class ExCoverAlgorithm {
             int sortedIndex = sortedAttributes[index];
             BitSet xPrime = (BitSet) patternX.clone();
             xPrime.set(sortedIndex);
-            System.out.println(xPrime);
+            //System.out.println(xPrime);
 
             int lastAddedCoreItemInOrderXPrime = index;
 
@@ -140,8 +140,8 @@ public class ExCoverAlgorithm {
 
             //Line 5 GROW Close x to xClosed
             BitSet xClosed = Matcher.close(positiveMatchesXPrime, positiveTransactionDatabase, numOfAttributes);
-            System.out.println("Closed: ");
-            System.out.println(xClosed);
+            //System.out.println("Closed: ");
+            //System.out.println(xClosed);
             //Line 6 GROW
             if(!preservesSuffix(xPrime, xClosed, lastAddedCoreItemInOrderXPrime)){
                 continue;

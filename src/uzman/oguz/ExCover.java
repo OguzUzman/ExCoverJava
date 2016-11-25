@@ -34,8 +34,10 @@ public class ExCover {
         ExCoverAlgorithm exCoverAlgorithm = new ExCoverAlgorithm(positiveClassesPath, negativeClassesPath, score);
 
         long algorithmStart = System.currentTimeMillis();
-        exCoverAlgorithm.run();
-        System.out.println("Algotithm took " + (System.currentTimeMillis()- algorithmStart)+ " milis");
+
+        exCoverAlgorithm.run(32);
+
+        System.out.println("Algorithm took " + (System.currentTimeMillis()- algorithmStart)+ " milis");
         System.out.println("Best patterns are: ");
 
         ArrayList<PatternQualityPair> patternQualityPairs = exCoverAlgorithm.getPatternQualityPairs();

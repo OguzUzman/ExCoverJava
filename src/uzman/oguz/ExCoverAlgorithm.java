@@ -4,12 +4,12 @@ import uzman.oguz.quality.FScore;
 import uzman.oguz.quality.QualityFunction;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import static uzman.oguz.Matcher.*;
+import static uzman.oguz.Matcher.findMatches;
 
 /**
  * Created by Oguz Uzman on 18/11/2016.
@@ -29,18 +29,17 @@ public class ExCoverAlgorithm {
      * It should take the size of positive trasaction database
      * An array of Lists
      */
-    private L l ;
+    private L l;
 
 
-
-    public ExCoverAlgorithm(String positiveFilePath, String negativeFilePath, String score){
+    public ExCoverAlgorithm(String positiveFilePath, String negativeFilePath, String score) {
 
         readDatabasesFromFiles(positiveFilePath, negativeFilePath);
 
         //Choose the quality score
-        if(score == FSCORE){
+        if (score == FSCORE) {
             qualityFunction = new FScore();
-        } else if(score.equals(FSCORE)) {
+        } else if (score.equals(FSCORE)) {
             qualityFunction = new FScore();
         } else {
             qualityFunction = new FScore();
@@ -54,7 +53,9 @@ public class ExCoverAlgorithm {
     /**
      * Start algorithm
      */
-    public void run(){
+    public void run(int nunOfThreads) {
+
+
 
         /**
          * ExCover Lines 1, 2
@@ -78,19 +79,71 @@ public class ExCoverAlgorithm {
         for (int i = 0; i < negativeTransactionDatabase.length; i++) {
             negativeT.add(i);
         }
-        grow(initialPattern, positiveT, negativeT, -1);
+        startMultiThreaded(nunOfThreads, initialPattern, positiveT, negativeT);
 
         System.out.println("finished");
+
+    }
+
+    private void startMultiThreaded(int numOfThreads, BitSet patternX, List<Integer> positiveT,
+                                    List<Integer> negativeT) {
+
+        List<Integer> B = new ArrayList<>();
+
+        int lastAddedCoreItemInOrder = -1;
+        if (lastAddedCoreItemInOrder == -1) {
+            for (int i = 0; i < numOfAttributes; i++) {
+                B.add(i);
+            }
+        }
+
+        int partitionSize = (int) Math.ceil(((double)B.size()) / ((double)numOfThreads));
+
+        final int[] numOfFinishedThreads = {0};
+        Thread[] threads = new Thread[numOfThreads];
+        for(int i = 0 ; i < numOfThreads;i++){
+
+            final int finalI = i;
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    int from = finalI *partitionSize;
+                    int to = (finalI +1)*partitionSize-1;
+                    grow(patternX, positiveT, negativeT, -1, from, to);
+                    numOfFinishedThreads[0]++;
+                    System.out.printf("Thread %d is finished\n", finalI);
+                }
+            });
+            threads[i] = thread;
+            thread.start();
+        }
+
+        try {
+            for(Thread thread : threads){
+                    thread.join();
+            }
+        } catch (InterruptedException e) {
+            System.out.println("An error occurred during thread join");
+            e.printStackTrace();
+        }
+
+        System.out.println("Threads finished");
+
     }
 
     /**
      * GROW function described in the paper's 11th page.
+     *
      * @param patternX
-     * @param positiveT current matches for pattern x in positive T
+     * @param positiveT                current matches for pattern x in positive T
      * @param negativeT
      * @param lastAddedCoreItemInOrder
+     * @param maxInOrder Only used when lastAddedCoreItemInOrder == -1
+     * @param minOrder Only used when lastAddedCoreItemInOrder == -1
      */
-    private void grow(BitSet patternX, List<Integer> positiveT, List<Integer> negativeT, int lastAddedCoreItemInOrder){
+    private void grow(BitSet patternX, List<Integer> positiveT, List<Integer> negativeT, int lastAddedCoreItemInOrder, int minOrder, int maxInOrder) {
+
 
         /**
          * Definition of B {x ∈ X |x not∈ x and patternX is a predecessor of the core item lastly added into x}
@@ -98,13 +151,13 @@ public class ExCoverAlgorithm {
          */
         List<Integer> B = new ArrayList<>();
 
-        if(lastAddedCoreItemInOrder == -1){
-            for(int i = 0; i < numOfAttributes; i++){
+        if (lastAddedCoreItemInOrder == -1) {
+            for (int i = minOrder; i <= maxInOrder && i < numOfAttributes; i++) {
                 B.add(i);
             }
         } else {
-            for(int i = 0; i < lastAddedCoreItemInOrder; i++ ){
-                if (patternX.get(sortedAttributes[i])){
+            for (int i = 0; i < lastAddedCoreItemInOrder; i++) {
+                if (patternX.get(sortedAttributes[i])) {
                     //x ∈ X
                 } else {
                     B.add(i);
@@ -134,7 +187,7 @@ public class ExCoverAlgorithm {
                     positiveTransactionDatabase.length, -1/* irrelevant*/);
 
             //Line 4 GROW
-            if(l.line4GrowAlgorithm(xPrime, positiveMatchesXPrime, positiveTransactionDatabase, numOfAttributes, upperBound)){
+            if (l.line4GrowAlgorithm(xPrime, positiveMatchesXPrime, positiveTransactionDatabase, numOfAttributes, upperBound)) {
                 continue;// pruned
             }
 
@@ -143,7 +196,7 @@ public class ExCoverAlgorithm {
             //System.out.println("Closed: ");
             //System.out.println(xClosed);
             //Line 6 GROW
-            if(!preservesSuffix(xPrime, xClosed, lastAddedCoreItemInOrderXPrime)){
+            if (!preservesSuffix(xPrime, xClosed, lastAddedCoreItemInOrderXPrime)) {
                 continue;
             }
 
@@ -158,15 +211,15 @@ public class ExCoverAlgorithm {
 
             double xStarGivenNotC = qualityFunction.probXGivenNotC(negativeTransactionDatabase, tStarNegative);
 
-            if(xStarGivenC >= xStarGivenNotC){
+            if (xStarGivenC >= xStarGivenNotC) {
                 add(tStarPositive, xClosed, qualityXStar, numOfAttributes);
             }
-            grow(xClosed, tStarPositive, tStarNegative, lastAddedCoreItemInOrderXPrime);
+            grow(xClosed, tStarPositive, tStarNegative, lastAddedCoreItemInOrderXPrime,0,0);
 
         }
     }
 
-    private void add(List<Integer> positiveMatches, BitSet patternX, double qualityOfX, int numOfAttributes){
+    private void add(List<Integer> positiveMatches, BitSet patternX, double qualityOfX, int numOfAttributes) {
 
         l.add(positiveMatches, patternX, qualityOfX, numOfAttributes);
 
@@ -174,10 +227,11 @@ public class ExCoverAlgorithm {
 
     /**
      * Read databases from given file paths
+     *
      * @param positiveClassesPath
      * @param negativeClassesPath
      */
-    private void readDatabasesFromFiles(String positiveClassesPath, String negativeClassesPath){
+    private void readDatabasesFromFiles(String positiveClassesPath, String negativeClassesPath) {
         positiveTransactionDatabase = readDatabaseFromFile(positiveClassesPath);
         negativeTransactionDatabase = readDatabaseFromFile(negativeClassesPath);
     }
@@ -185,10 +239,11 @@ public class ExCoverAlgorithm {
 
     /**
      * Read database from file and set the parameters for number of attributes and transactions.
+     *
      * @param filePath
      * @return
      */
-    private BitSet[] readDatabaseFromFile(String filePath){
+    private BitSet[] readDatabaseFromFile(String filePath) {
 
         File dataFile = new File(filePath);
         BitSet[] database = null;
@@ -205,12 +260,12 @@ public class ExCoverAlgorithm {
             int numOfTransactions = Integer.valueOf(nums[0]);
             database = new BitSet[numOfTransactions];
 
-            for(int row = 0; row < numOfTransactions; row++){
+            for (int row = 0; row < numOfTransactions; row++) {
                 line = br.readLine();
                 String[] attributes = line.split(" ");
 
                 BitSet transaction = new BitSet(numOfAttributes);
-                for(int attributeIndex = 0; attributeIndex < numOfAttributes; attributeIndex++){
+                for (int attributeIndex = 0; attributeIndex < numOfAttributes; attributeIndex++) {
                     transaction.set(attributeIndex, attributes[attributeIndex].equals("1"));
                 }
                 database[row] = transaction;
@@ -230,13 +285,13 @@ public class ExCoverAlgorithm {
     /**
      * Will calculate all quality scores
      */
-    private void calculateAndSortScoresForAttributes(){
+    private void calculateAndSortScoresForAttributes() {
 
         //Empty array for quality scores
         double[] qualities = new double[numOfAttributes];
 
         //
-        for(int attribute = 0; attribute < numOfAttributes; attribute++){
+        for (int attribute = 0; attribute < numOfAttributes; attribute++) {
             BitSet pattern = new BitSet(numOfAttributes);
             pattern.set(attribute);
             double qualityForAttribute =
@@ -253,15 +308,16 @@ public class ExCoverAlgorithm {
 
     /**
      * Means that a pattern can't have attributes which is earlier in the order through the closure.
+     *
      * @param patternX
      * @param closedPatternX
      * @return
      */
-    private boolean preservesSuffix(BitSet patternX, BitSet closedPatternX, int lastAddedCoreItemIndex){
+    private boolean preservesSuffix(BitSet patternX, BitSet closedPatternX, int lastAddedCoreItemIndex) {
         BitSet closedAdds = Matcher.findExtraItemsInClosedForm(patternX, closedPatternX, numOfAttributes);
 
-        for(int i = lastAddedCoreItemIndex+1; i < numOfAttributes; i++)
-            if(closedAdds.get(sortedAttributes[i]))
+        for (int i = lastAddedCoreItemIndex + 1; i < numOfAttributes; i++)
+            if (closedAdds.get(sortedAttributes[i]))
                 return false;
         return true;
     }

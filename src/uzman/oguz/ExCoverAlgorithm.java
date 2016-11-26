@@ -5,9 +5,6 @@ import uzman.oguz.quality.QualityFunction;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static uzman.oguz.Matcher.findMatches;
 
@@ -47,6 +44,15 @@ public class ExCoverAlgorithm {
 
         calculateAndSortScoresForAttributes();
 
+        /**
+         * ExCover Lines 1, 2
+         * Initial empty pattern covers all transactions so we define quality wrt that.
+         */
+        double emptyPatternQuality = qualityFunction.quality
+                (positiveTransactionDatabase.length, negativeTransactionDatabase.length,
+                        positiveTransactionDatabase.length, negativeTransactionDatabase.length);
+        l = new L(positiveTransactionDatabase.length, emptyPatternQuality, numOfAttributes);
+
     }
 
 
@@ -57,10 +63,6 @@ public class ExCoverAlgorithm {
 
 
 
-        /**
-         * ExCover Lines 1, 2
-         */
-        l = new L(positiveTransactionDatabase.length);
 
         /**
          * Initial empty pattern ExCover 1-2
@@ -97,10 +99,13 @@ public class ExCoverAlgorithm {
             }
         }
 
+
         int partitionSize = (int) Math.ceil(((double)B.size()) / ((double)numOfThreads));
 
-        final int[] numOfFinishedThreads = {0};
         Thread[] threads = new Thread[numOfThreads];
+        long[] times = new long[numOfThreads];
+        int[] totalLeafs = new int[numOfThreads];
+
         for(int i = 0 ; i < numOfThreads;i++){
 
             final int finalI = i;
@@ -110,11 +115,14 @@ public class ExCoverAlgorithm {
 
                     int from = finalI *partitionSize;
                     int to = (finalI +1)*partitionSize-1;
-                    grow(patternX, positiveT, negativeT, -1, from, to);
-                    numOfFinishedThreads[0]++;
-                    System.out.printf("Thread %d is finished\n", finalI);
+                    long start = System.currentTimeMillis();
+                    totalLeafs[finalI] = grow(patternX, positiveT, negativeT, -1, from, to);
+                    long end = System.currentTimeMillis();
+                    times[finalI] = end - start;
+                    //System.out.printf("Thread %d is finished in %d ms\n", finalI, end-start);
                 }
             });
+            thread.setName("ExCover thread: " + i);
             threads[i] = thread;
             thread.start();
         }
@@ -127,6 +135,11 @@ public class ExCoverAlgorithm {
             System.out.println("An error occurred during thread join");
             e.printStackTrace();
         }
+
+        for (int i = 0; i < numOfThreads; i++) {
+            System.out.printf("Thread %d, with % d leafs, is finished in %d ms\n", i, totalLeafs[i], times[i]);
+        }
+
 
         System.out.println("Threads finished");
 
@@ -142,7 +155,8 @@ public class ExCoverAlgorithm {
      * @param maxInOrder Only used when lastAddedCoreItemInOrder == -1
      * @param minOrder Only used when lastAddedCoreItemInOrder == -1
      */
-    private void grow(BitSet patternX, List<Integer> positiveT, List<Integer> negativeT, int lastAddedCoreItemInOrder, int minOrder, int maxInOrder) {
+    private int grow(BitSet patternX, List<Integer> positiveT, List<Integer> negativeT, int lastAddedCoreItemInOrder,
+                     int minOrder, int maxInOrder) {
 
 
         /**
@@ -164,6 +178,7 @@ public class ExCoverAlgorithm {
                 }
             }
         }
+        int total = 1;
         /**
          * Line 2
          */
@@ -186,6 +201,8 @@ public class ExCoverAlgorithm {
             double upperBound = qualityFunction.upperBound(positiveMatchesXPrime.size(), -1/* Irrelevant for fscore*/,
                     positiveTransactionDatabase.length, -1/* irrelevant*/);
 
+            System.out.println(lastAddedCoreItemInOrder);
+            System.out.println(upperBound);
             //Line 4 GROW
             if (l.line4GrowAlgorithm(xPrime, positiveMatchesXPrime, positiveTransactionDatabase, numOfAttributes, upperBound)) {
                 continue;// pruned
@@ -214,9 +231,10 @@ public class ExCoverAlgorithm {
             if (xStarGivenC >= xStarGivenNotC) {
                 add(tStarPositive, xClosed, qualityXStar, numOfAttributes);
             }
-            grow(xClosed, tStarPositive, tStarNegative, lastAddedCoreItemInOrderXPrime,0,0);
+            total += grow(xClosed, tStarPositive, tStarNegative, lastAddedCoreItemInOrderXPrime, 0, 0);
 
         }
+        return total;
     }
 
     private void add(List<Integer> positiveMatches, BitSet patternX, double qualityOfX, int numOfAttributes) {

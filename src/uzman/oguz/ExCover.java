@@ -4,6 +4,13 @@ package uzman.oguz;
  * Created by oguz on 17/11/2016.
  */
 
+import com.jgraph.layout.JGraphFacade;
+import com.jgraph.layout.hierarchical.JGraphHierarchicalLayout;
+import org.jgrapht.ListenableGraph;
+import org.jgrapht.alg.PrimMinimumSpanningTree;
+import uzman.oguz.visualize.GraphAdapter;
+
+import javax.swing.*;
 import java.util.*;
 
 /**
@@ -33,12 +40,22 @@ public class ExCover {
 
         ExCoverAlgorithm exCoverAlgorithm = new ExCoverAlgorithm(positiveClassesPath, negativeClassesPath, score);
 
+        if(false) {
+            GraphAdapter graphAdapter = new GraphAdapter();
+            graphAdapter.init();
+            ListenableGraph g = graphAdapter.g;
+        }
         long algorithmStart = System.currentTimeMillis();
 
-        exCoverAlgorithm.run(32);
+
+        //g = null;
+        exCoverAlgorithm.run(1);
 
         System.out.println("Algorithm took " + (System.currentTimeMillis()- algorithmStart)+ " milis");
         System.out.println("Best patterns are: ");
+
+
+
 
         ArrayList<PatternQualityPair> patternQualityPairs = exCoverAlgorithm.getPatternQualityPairs();
         ArrayList<Integer>[] transactionPatternMapping = exCoverAlgorithm.getTransactionPatternMapping();

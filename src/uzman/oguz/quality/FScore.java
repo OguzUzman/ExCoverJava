@@ -23,7 +23,7 @@ public class FScore extends QualityFunction{
     @Override
     public double quality(BitSet[] positiveDatabase, BitSet[] negativeDatabase, BitSet pattern,
                           List<Integer> positiveMatches, List<Integer> negativeMatches, int numAttributes) {
-        return 0;
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override

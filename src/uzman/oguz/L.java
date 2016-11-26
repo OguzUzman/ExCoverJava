@@ -11,22 +11,27 @@ public class L {
     /**
      * If a bit is true, there is a pattern at that index in @patternQualityPair.
      */
-    private ArrayList<Integer>[] transactionPatternMapping;
+    volatile private ArrayList<Integer>[] transactionPatternMapping;
 
     /**
      * A list of patterns, which contain pattern and its quality
      */
-    private ArrayList<PatternQualityPair> patternQualityPairs;
+    volatile private ArrayList<PatternQualityPair> patternQualityPairs;
 
 
-    public L(int numOfTransactions) {
+    public L(int numOfTransactions, double initialScoreForEmptyPattern, int numOfAttributes) {
         transactionPatternMapping = new ArrayList[numOfTransactions];
 
         for (int i = 0, length = transactionPatternMapping.length; i < length; i++) {
-            transactionPatternMapping[i] = new ArrayList<>();
+            ArrayList<Integer> patternMappings = new ArrayList<>();
+            patternMappings.add(0);
+            transactionPatternMapping[i] = patternMappings;
         }
 
         patternQualityPairs = new ArrayList<PatternQualityPair>();
+
+        PatternQualityPair emptyPattern = new PatternQualityPair(new BitSet(numOfAttributes), initialScoreForEmptyPattern);
+        patternQualityPairs.add(emptyPattern);
     }
 
 
@@ -41,15 +46,17 @@ public class L {
         boolean secondPart = true;
         double currentMin = Double.MAX_VALUE;
         for (int i = 0; i < xSubPatternMatches.size(); i++) {
-            if (!firstPart) {
-                BitSet posTransaction = positiveDatabase[xSubPatternMatches.get(i)];
-                boolean match = Matcher.match(posTransaction, patternXPrime, attributeCount);
-                if(match){
-                    if (transactionPatternMapping[i].size() > 0) {
-                        firstPart = true;
-                        double firstPaternQality = patternQualityPairs.get(transactionPatternMapping[i].get(0)).getQuality();
-                        currentMin = currentMin > firstPaternQality ? firstPaternQality : currentMin;
-                    }
+            int transactionIndexInPositiveDB = xSubPatternMatches.get(i);
+            BitSet posTransaction = positiveDatabase[transactionIndexInPositiveDB];
+            boolean match = Matcher.match(posTransaction, patternXPrime, attributeCount);
+            if(match){
+
+                //Means first part of line 4 is true, at least one of them has an attribute
+                if (transactionPatternMapping[i].size() > 0) {
+                    firstPart = true;
+                    double firstPaternQality = patternQualityPairs.get(
+                            transactionPatternMapping[transactionIndexInPositiveDB].get(0)).getQuality();
+                    currentMin = currentMin > firstPaternQality ? firstPaternQality : currentMin;
                 }
             }
         }
@@ -59,6 +66,7 @@ public class L {
         }
 
         return firstPart && secondPart;
+        //return false;
     }
 
 
@@ -86,15 +94,17 @@ public class L {
             //Line 3: ADD
             if(qualityOfX > arbitraryQuality){
                 setToPattern(patternIndex, t);
-            } else if(qualityOfX == arbitraryQuality){
+            }
+            //Line 5: ADD
+            else if(qualityOfX == arbitraryQuality){
                 boolean isASubPattern = false;
 
-                ArrayList<Integer> patternsIndexForATransaction = transactionPatternMapping[t];
 
-                for (int i = 0; i < transactionPatternMapping.length; i++) {
+                for (int i = 0; i < Lt.size(); i++) {
 
-                    BitSet pattern = patternQualityPairs.get(patternsIndexForATransaction.get(i)).getPattern();
-                    if(Matcher.subset(patternX, pattern, numOfAttributes)){
+                    BitSet patternZ = patternQualityPairs.get(i).getPattern();
+                    // If X is a superset of pattern z
+                    if(Matcher.subset(patternZ, patternX, numOfAttributes)){
                         isASubPattern = true;
                         break;
                     }

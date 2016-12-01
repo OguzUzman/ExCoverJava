@@ -24,14 +24,14 @@ public class L {
 
         for (int i = 0, length = transactionPatternMapping.length; i < length; i++) {
             ArrayList<Integer> patternMappings = new ArrayList<>();
-            patternMappings.add(0);
+            //patternMappings.add(0);
             transactionPatternMapping[i] = patternMappings;
         }
 
         patternQualityPairs = new ArrayList<PatternQualityPair>();
 
-        PatternQualityPair emptyPattern = new PatternQualityPair(new BitSet(numOfAttributes), initialScoreForEmptyPattern);
-        patternQualityPairs.add(emptyPattern);
+        //PatternQualityPair emptyPattern = new PatternQualityPair(new BitSet(numOfAttributes), initialScoreForEmptyPattern);
+        //patternQualityPairs.add(emptyPattern);
     }
 
 
@@ -51,12 +51,16 @@ public class L {
             boolean match = Matcher.match(posTransaction, patternXPrime, attributeCount);
             if(match){
 
-                //Means first part of line 4 is true, at least one of them has an attribute
-                if (transactionPatternMapping[i].size() > 0) {
-                    firstPart = true;
-                    double firstPaternQality = patternQualityPairs.get(
-                            transactionPatternMapping[transactionIndexInPositiveDB].get(0)).getQuality();
-                    currentMin = currentMin > firstPaternQality ? firstPaternQality : currentMin;
+                //Means first part of line 4 is true
+                if (transactionPatternMapping[transactionIndexInPositiveDB].size() > 0) {
+                    try {
+                        firstPart = true;
+                        double arbitraryPatternQuality = patternQualityPairs.get(
+                                transactionPatternMapping[transactionIndexInPositiveDB].get(0)).getQuality();
+                        currentMin = currentMin > arbitraryPatternQuality ? arbitraryPatternQuality : currentMin;
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             }
         }

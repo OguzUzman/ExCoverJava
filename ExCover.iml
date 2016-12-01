@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="javadoc" level="project" />
     <orderEntry type="library" name="jgrapht" level="project" />
+    <orderEntry type="library" name="datasets-UCI" level="project" />
   </component>
 </module>

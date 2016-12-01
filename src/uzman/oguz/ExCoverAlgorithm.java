@@ -21,9 +21,10 @@ public class ExCoverAlgorithm {
      */
     private BitSet[] positiveTransactionDatabase, negativeTransactionDatabase;
     private int numOfAttributes = 0;
+
     /**
      * Candidate table L, as described in the paper
-     * It should take the size of positive trasaction database
+     * It should take the size of positive transaction database
      * An array of Lists
      */
     private L l;
@@ -201,8 +202,6 @@ public class ExCoverAlgorithm {
             double upperBound = qualityFunction.upperBound(positiveMatchesXPrime.size(), -1/* Irrelevant for fscore*/,
                     positiveTransactionDatabase.length, -1/* irrelevant*/);
 
-            System.out.println(lastAddedCoreItemInOrder);
-            System.out.println(upperBound);
             //Line 4 GROW
             if (l.line4GrowAlgorithm(xPrime, positiveMatchesXPrime, positiveTransactionDatabase, numOfAttributes, upperBound)) {
                 continue;// pruned

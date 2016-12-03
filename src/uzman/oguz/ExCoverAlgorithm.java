@@ -5,6 +5,9 @@ import uzman.oguz.quality.QualityFunction;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static uzman.oguz.Matcher.findMatches;
 
@@ -104,38 +107,41 @@ public class ExCoverAlgorithm {
         int partitionSize = (int) Math.ceil(((double)B.size()) / ((double)numOfThreads));
 
         Thread[] threads = new Thread[numOfThreads];
-        long[] times = new long[numOfThreads];
-        int[] totalLeafs = new int[numOfThreads];
+        long[] times = new long[numOfAttributes];
+        int[] totalLeafs = new int[numOfAttributes];
 
-        for(int i = 0 ; i < numOfThreads;i++){
+
+        ExecutorService taskExecutor = Executors.newFixedThreadPool(numOfThreads);
+
+        for(int i = 0 ; i < numOfAttributes;i++){
 
             final int finalI = i;
-            Thread thread = new Thread(new Runnable() {
+             Runnable leafStart = new Runnable() {
                 @Override
                 public void run() {
 
-                    int from = finalI *partitionSize;
-                    int to = (finalI +1)*partitionSize-1;
+                    Thread.currentThread().setName("ExCover thread: " + finalI);
+                    int from = finalI;
+                    int to = finalI;
                     long start = System.currentTimeMillis();
                     totalLeafs[finalI] = grow(patternX, positiveT, negativeT, -1, from, to);
                     long end = System.currentTimeMillis();
                     times[finalI] = end - start;
-                    //System.out.printf("Thread %d is finished in %d ms\n", finalI, end-start);
+                    System.out.printf("Thread %d is finished in %d ms\n", finalI, end-start);
                 }
-            });
-            thread.setName("ExCover thread: " + i);
-            threads[i] = thread;
-            thread.start();
+            };
+            taskExecutor.execute(leafStart);
         }
 
+        taskExecutor.shutdown();
         try {
-            for(Thread thread : threads){
-                    thread.join();
-            }
+            taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
-            System.out.println("An error occurred during thread join");
+            System.out.println("There's a problem with multi threading.");
             e.printStackTrace();
         }
+
+
 
         for (int i = 0; i < numOfThreads; i++) {
             System.out.printf("Thread %d, with % d leafs, is finished in %d ms\n", i, totalLeafs[i], times[i]);

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by oguz on 20/11/2016.
  */
-public class L {
+public class  L {
     /**
      * If a bit is true, there is a pattern at that index in @patternQualityPair.
      */

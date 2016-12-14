@@ -42,6 +42,8 @@ public class  L {
      */
     public synchronized boolean line4GrowAlgorithm(BitSet patternXPrime, List<Integer> xSubPatternMatches,
                                       BitSet[] positiveDatabase, int attributeCount, double upperBoundForXPrime) {
+        if(xSubPatternMatches.size() == 0)
+            return true;//If there are no positive matching elements, can be pruned
         boolean firstPart = false;
         boolean secondPart = true;
         double currentMin = Double.MAX_VALUE;
@@ -61,7 +63,12 @@ public class  L {
                     } catch (Exception e){
                         e.printStackTrace();
                     }
+                } else {
+                    currentMin = 0;
                 }
+                // else, currentmin i 0 yapmayı dene
+            } else {
+                ColoredPrint.print(ColoredPrint.ANSI_RED, "There is a problem " );
             }
         }
 

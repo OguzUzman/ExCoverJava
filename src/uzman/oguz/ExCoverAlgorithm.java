@@ -109,7 +109,7 @@ public class ExCoverAlgorithm {
         Thread[] threads = new Thread[numOfThreads];
         long[] times = new long[numOfAttributes];
         int[] totalLeafs = new int[numOfAttributes];
-
+        Arrays.fill(totalLeafs, 0);
 
         ExecutorService taskExecutor = Executors.newFixedThreadPool(numOfThreads);
 
@@ -234,7 +234,9 @@ public class ExCoverAlgorithm {
             double xStarGivenNotC = qualityFunction.probXGivenNotC(negativeTransactionDatabase, tStarNegative);
 
             if (xStarGivenC >= xStarGivenNotC) {
-                add(tStarPositive, xClosed, qualityXStar, numOfAttributes);
+                synchronized (this) {
+                    add(tStarPositive, xClosed, qualityXStar, numOfAttributes);
+                }
             }
             total += grow(xClosed, tStarPositive, tStarNegative, lastAddedCoreItemInOrderXPrime, 0, 0);
 
@@ -342,6 +344,21 @@ public class ExCoverAlgorithm {
         for (int i = lastAddedCoreItemIndex + 1; i < numOfAttributes; i++)
             if (closedAdds.get(sortedAttributes[i]))
                 return false;
+        return true;
+    }
+
+
+    /**
+     * Checks if all positive transactions are covered
+     * @return
+     */
+    public boolean allPositivesAreCovered(){
+        ArrayList<Integer>[] transactionPatternMapping = l.getTransactionPatternMapping();
+        for (int i = 0; i < transactionPatternMapping.length; i++) {
+            if(transactionPatternMapping[i].size() == 0){
+                return false;
+            }
+        }
         return true;
     }
 

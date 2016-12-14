@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Python" name="Python">
+      <configuration sdkName="Python 2.7.11 (~/anaconda/bin/python)" />
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -7,8 +12,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="javadoc" level="project" />
-    <orderEntry type="library" name="jgrapht" level="project" />
-    <orderEntry type="library" name="datasets-UCI" level="project" />
+    <orderEntry type="library" name="commons-cli-1.3" level="project" />
+    <orderEntry type="library" name="Python 2.7.11 (~/anaconda/bin/python) interpreter library" level="application" />
   </component>
 </module>

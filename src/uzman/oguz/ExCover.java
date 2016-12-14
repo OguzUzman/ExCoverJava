@@ -4,13 +4,8 @@ package uzman.oguz;
  * Created by oguz on 17/11/2016.
  */
 
-import com.jgraph.layout.JGraphFacade;
-import com.jgraph.layout.hierarchical.JGraphHierarchicalLayout;
-import org.jgrapht.ListenableGraph;
-import org.jgrapht.alg.PrimMinimumSpanningTree;
-import uzman.oguz.visualize.GraphAdapter;
+import org.apache.commons.cli.*;
 
-import javax.swing.*;
 import java.util.*;
 
 /**
@@ -19,61 +14,72 @@ import java.util.*;
 public class ExCover {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
 
-        BitSet s = new BitSet(16);
+        Options options = new Options();
+        options.addOption("i", "input", true, "Input dataset folder name. E.g. -i=mushroom");
+        options.addOption("s", "score", true, "Score measure -s=f for F-Score");
+        options.addOption("h", "help", false, "Put input datasets into input folder of root folder.");
+        Option threadOption = Option.builder("t").optionalArg(false).argName("t").longOpt("threads").hasArg(true).
+                desc("Number of threads. E.g. -t=4").build();
+        options.addOption(threadOption);
 
+        try {
+            CommandLineParser parser = new DefaultParser();
+            CommandLine cmd = parser.parse(options, args);
 
-        s.set(5);
-
-        if(args.length < 1){
-            System.out.println(
-                    "Please enter parameters for the file paths of positive transactions and negative transactions");
-            return;
-        }
-
-        String path = args[0];
-        String positiveClassesPath = "inputs/"+path+"/binary positive output.txt";
-        String negativeClassesPath = "inputs/"+path+"/binary negative output.txt";
-
-        String score = args[1];
-
-        ExCoverAlgorithm exCoverAlgorithm = new ExCoverAlgorithm(positiveClassesPath, negativeClassesPath, score);
-
-        if(false) {
-            GraphAdapter graphAdapter = new GraphAdapter();
-            graphAdapter.init();
-            ListenableGraph g = graphAdapter.g;
-        }
-        long algorithmStart = System.currentTimeMillis();
+            String path = cmd.getOptionValue("i");
+            String score = cmd.getOptionValue("s");
+            String strNumOfThreads = cmd.getOptionValue("t");
 
 
-        //g = null;
-        exCoverAlgorithm.run(1);
+            int numOfThreads = strNumOfThreads == null ? 1 : Integer.parseInt(strNumOfThreads);
 
-        System.out.println("Algorithm took " + (System.currentTimeMillis()- algorithmStart)+ " milis");
-        System.out.println("Best patterns are: ");
+
+            String positiveClassesPath = "inputs/" + path + "/binary positive output.txt";
+            String negativeClassesPath = "inputs/" + path + "/binary negative output.txt";
 
 
 
+            ExCoverAlgorithm exCoverAlgorithm = new ExCoverAlgorithm(positiveClassesPath, negativeClassesPath, score);
 
-        ArrayList<PatternQualityPair> patternQualityPairs = exCoverAlgorithm.getPatternQualityPairs();
-        ArrayList<Integer>[] transactionPatternMapping = exCoverAlgorithm.getTransactionPatternMapping();
+            long algorithmStart = System.currentTimeMillis();
 
-        ArrayList<Integer> patternQualityIndices = new ArrayList<>();
-        for (int i = 0; i < transactionPatternMapping.length; i++) {
-            ArrayList<Integer> mapping = transactionPatternMapping[i];
-            for (Integer integer: mapping) {
-                patternQualityIndices.add(integer);
+
+            //g = null;
+            exCoverAlgorithm.run(numOfThreads);
+
+            System.out.println("Algorithm took " + (System.currentTimeMillis() - algorithmStart) + " milis");
+            System.out.println("Best patterns are: ");
+
+            ArrayList<PatternQualityPair> patternQualityPairs = exCoverAlgorithm.getPatternQualityPairs();
+            ArrayList<Integer>[] transactionPatternMapping = exCoverAlgorithm.getTransactionPatternMapping();
+
+            ArrayList<Integer> patternQualityIndices = new ArrayList<>();
+            for (int i = 0; i < transactionPatternMapping.length; i++) {
+                ArrayList<Integer> mapping = transactionPatternMapping[i];
+                for (Integer integer : mapping) {
+                    patternQualityIndices.add(integer);
+                }
             }
-        }
-        Set<Integer> uniqKeys = new TreeSet<Integer>();
-        uniqKeys.addAll(patternQualityIndices);
+            Set<Integer> uniqKeys = new TreeSet<Integer>();
+            uniqKeys.addAll(patternQualityIndices);
 
-        Iterator iter = uniqKeys.iterator();
-        while (iter.hasNext()) {
-            System.out.println(patternQualityPairs.get((Integer) iter.next()));
+            Iterator iter = uniqKeys.iterator();
+            while (iter.hasNext()) {
+                System.out.println(patternQualityPairs.get((Integer) iter.next()));
+            }
+
+            if (exCoverAlgorithm.allPositivesAreCovered()) {
+                System.out.println("All positive transactions are covered");
+            } else {
+                System.out.println("NOT all positive transactions are covered");
+            }
+        } catch (ParseException e) {
+            HelpFormatter helpFormatter = new HelpFormatter();
+            helpFormatter.printHelp("ExCover", options);
         }
 
     }
+
 }

@@ -41,6 +41,13 @@ public class Matcher {
         return matches;
     }
 
+    /**
+     * Check if pattern matches the transaction
+     * @param transaction
+     * @param pattern
+     * @param attributeCounter
+     * @return
+     */
     public static boolean match(BitSet transaction, BitSet pattern, int attributeCounter){
         // We perform the boolean operation T + ( ¬P ), then the sum should be equal to the number of attributes.
         //((BitSet)transaction.clone()).or(((BitSet) pattern.clone()).no);
@@ -54,8 +61,17 @@ public class Matcher {
         return flippedPattern.cardinality() == attributeCounter; // They are equal
     }
 
+    /**
+     * Close the given pattern in positiveDatabase
+     * @param matches
+     * @param positiveDatabase
+     * @param numOfAttributes
+     * @return
+     */
     public static BitSet close(List<Integer> matches, BitSet[] positiveDatabase, int numOfAttributes){
         //Starting from a state where it has all the closed ones
+        if(matches.size() == 0)
+            return new BitSet();
         BitSet closedForm = new BitSet(numOfAttributes);
         closedForm.flip(0, numOfAttributes);
         for (int matchIndex = 0; matchIndex < matches.size(); matchIndex++) {
@@ -64,6 +80,13 @@ public class Matcher {
         return closedForm;
     }
 
+    /**
+     * Finds closedPatternX \ patternX
+     * @param patternX
+     * @param closedPatternX
+     * @param numOfAttributes
+     * @return
+     */
     public static BitSet findExtraItemsInClosedForm(BitSet patternX, BitSet closedPatternX, int numOfAttributes){
         //We want to preserve the original
         BitSet result = (BitSet) patternX.clone();

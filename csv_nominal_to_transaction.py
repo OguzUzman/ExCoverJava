@@ -8,7 +8,7 @@ columnCount = 23
 positiveClass = 'e'
 delim = ','
 
-cls = 'splice_n'
+cls = 'mushroom'
 
 
 with open('pythoninput/' + cls + '/' + cls + '.data', 'rb') as csvfile:

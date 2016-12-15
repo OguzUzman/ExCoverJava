@@ -52,22 +52,11 @@ public class ExCover {
             System.out.println("Algorithm took " + (System.currentTimeMillis() - algorithmStart) + " milis");
             System.out.println("Best patterns are: ");
 
-            ArrayList<PatternQualityPair> patternQualityPairs = exCoverAlgorithm.getPatternQualityPairs();
-            ArrayList<Integer>[] transactionPatternMapping = exCoverAlgorithm.getTransactionPatternMapping();
+            List<PatternQualityPair> outputs = exCoverAlgorithm.getOutputPatterns();
 
-            ArrayList<Integer> patternQualityIndices = new ArrayList<>();
-            for (int i = 0; i < transactionPatternMapping.length; i++) {
-                ArrayList<Integer> mapping = transactionPatternMapping[i];
-                for (Integer integer : mapping) {
-                    patternQualityIndices.add(integer);
-                }
-            }
-            Set<Integer> uniqKeys = new TreeSet<Integer>();
-            uniqKeys.addAll(patternQualityIndices);
-
-            Iterator iter = uniqKeys.iterator();
-            while (iter.hasNext()) {
-                System.out.println(patternQualityPairs.get((Integer) iter.next()));
+            for (PatternQualityPair pattern :
+                    outputs) {
+                System.out.println(pattern);
             }
 
             if (exCoverAlgorithm.allPositivesAreCovered()) {
@@ -75,11 +64,10 @@ public class ExCover {
             } else {
                 System.out.println("NOT all positive transactions are covered");
             }
+
         } catch (ParseException e) {
             HelpFormatter helpFormatter = new HelpFormatter();
             helpFormatter.printHelp("ExCover", options);
         }
-
     }
-
 }

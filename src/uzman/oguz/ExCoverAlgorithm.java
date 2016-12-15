@@ -371,4 +371,56 @@ public class ExCoverAlgorithm {
         return l.getPatternQualityPairs();
     }
 
+    public List<PatternQualityPair> getOutputPatterns(){
+
+        List<PatternQualityPair> outputPatterns = new ArrayList<>();
+
+        ArrayList<PatternQualityPair> patternQualityPairs = getPatternQualityPairs();
+        ArrayList<Integer>[] transactionPatternMapping = getTransactionPatternMapping();
+
+        ArrayList<Integer> patternQualityIndices = new ArrayList<>();
+        for (int i = 0; i < transactionPatternMapping.length; i++) {
+            ArrayList<Integer> mapping = transactionPatternMapping[i];
+            for (Integer integer : mapping) {
+                patternQualityIndices.add(integer);
+            }
+        }
+        Set<Integer> uniqKeys = new TreeSet<Integer>();
+        uniqKeys.addAll(patternQualityIndices);
+
+        Iterator iter = uniqKeys.iterator();
+        while (iter.hasNext()) {
+            outputPatterns.add(patternQualityPairs.get((Integer) iter.next()));
+        }
+
+        sortPatterns(outputPatterns);
+
+
+        return outputPatterns;
+    }
+
+    /**
+     * Sorts the patterns by their quality, first has the highest quality score
+     * @param patternsToSort
+     */
+    private void sortPatterns(List<PatternQualityPair> patternsToSort){
+        Collections.sort(patternsToSort, new Comparator<PatternQualityPair>() {
+            @Override
+            public int compare(PatternQualityPair o1, PatternQualityPair o2) {
+                if(o1.getQuality() == o2.getQuality())
+                    return 0;
+                else if(o1.getQuality() > o2.getQuality())
+                    return -1;
+                return 1;
+            }
+        });
+    }
+
+    public BitSet[] getPositiveTransactionDatabase() {
+        return positiveTransactionDatabase;
+    }
+
+    public BitSet[] getNegativeTransactionDatabase() {
+        return negativeTransactionDatabase;
+    }
 }

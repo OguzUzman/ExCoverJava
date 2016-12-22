@@ -24,9 +24,7 @@ public class PatternQualityPair {
 
     @Override
     public String toString() {
-        return "PatternQualityPair{" +
-                "quality=" + quality +
-                ", pattern=" + pattern +
-                '}';
+        String format = "{quality = %.3f, pattern = %s}";
+        return String.format(format, quality, pattern);
     }
 }

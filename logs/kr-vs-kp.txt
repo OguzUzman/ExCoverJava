@@ -1,0 +1,19 @@
+Algorithma took 12087 milis
+Number of threads at a time = 8
+Best patterns are: 
+{quality = 0.798, pattern = {19, 27, 56, 58, 64, 66}}
+{quality = 0.784, pattern = {19, 27, 56, 58, 66}}
+{quality = 0.782, pattern = {19, 27, 32, 50, 54, 56, 58, 64}}
+{quality = 0.775, pattern = {19, 27, 50, 54, 56, 58, 64}}
+{quality = 0.770, pattern = {19, 27, 32, 50, 56, 58, 64}}
+{quality = 0.762, pattern = {19, 27, 50, 56, 58, 64}}
+{quality = 0.748, pattern = {27, 56, 58, 64, 66}}
+{quality = 0.731, pattern = {15, 27, 32, 50, 54, 56, 58, 64}}
+{quality = 0.727, pattern = {15, 27, 32, 50, 56, 58, 64}}
+{quality = 0.725, pattern = {15, 27, 50, 54, 56, 58, 64}}
+{quality = 0.723, pattern = {5, 27, 32, 50, 54, 56, 58, 64}}
+{quality = 0.721, pattern = {15, 27, 32, 50, 54, 56, 58}}
+{quality = 0.718, pattern = {5, 27, 32, 50, 56, 58, 64}}
+{quality = 0.716, pattern = {27, 32, 50, 56, 58, 64}}
+{quality = 0.712, pattern = {27, 32, 50, 54, 56, 58}}
+All positive transactions are covered

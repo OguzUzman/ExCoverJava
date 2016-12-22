@@ -1,0 +1,7 @@
+Algorithma took 253 milis
+Number of threads at a time = 8
+Best patterns are: 
+{quality = 0.905, pattern = {0, 32, 34, 46, 48, 78}}
+{quality = 0.904, pattern = {0, 34, 46, 48, 78}}
+{quality = 0.900, pattern = {0, 32, 34, 46, 48}}
+All positive transactions are covered

@@ -4,13 +4,13 @@ import array as arr
 import os
 import re
 
-maxAttributeIndex = 92
+maxAttributeIndex = 95
 maxAttributeNum = maxAttributeIndex + 1
 
 positiveClass = '+'
 delim = ' '
 
-cls = 'anneal'
+cls = 'heart-cleveland'
 
 infolder = 'kminput'
 outfolder = 'kmoutput'

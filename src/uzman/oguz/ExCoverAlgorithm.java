@@ -67,6 +67,8 @@ public class ExCoverAlgorithm {
 
 
 
+        //If there are more threads than the number of attributes, set number of threads to number of attributes.
+        nunOfThreads = nunOfThreads > numOfAttributes ? nunOfThreads : numOfAttributes;
 
         /**
          * Initial empty pattern ExCover 1-2

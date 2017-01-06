@@ -1,0 +1,16 @@
+| names file (C4.5 format) for nursery domain
+
+| class values
+
+not_recom=n, recommend=r, very_recom=v, priority=p, spec_prior=s
+
+| attributes
+
+parents:     usual=u, pretentious=p, great_pret=g.
+has_nurs:    proper=p, less_proper=l, improper=i, critical=c, very_crit=v.
+form:        complete=c, completed=d, incomplete=i, foster=f.
+children:    1, 2, 3, more=m.
+housing:     convenient=t, less_conv=l, critical=c.
+finance:     convenient=t, inconv=i.
+social:      nonprob=b, slightly_prob=s, problematic=p.
+health:      recommended=r, priority=p, not_recom=n.

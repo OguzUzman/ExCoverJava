@@ -16,6 +16,7 @@ import static uzman.oguz.Matcher.findMatches;
  */
 public class ExCoverAlgorithm {
 
+
     public static String FSCORE = "-f";
     Integer[] sortedAttributes = null;
     QualityFunction qualityFunction;
@@ -217,6 +218,7 @@ public class ExCoverAlgorithm {
 
             //Line 5 GROW Close x to xClosed
             BitSet xClosed = Matcher.close(positiveMatchesXPrime, positiveTransactionDatabase, numOfAttributes);
+            //BitSet xClosed = (BitSet) xPrime.clone();
             //System.out.println("Closed: ");
             //System.out.println(xClosed);
             //Line 6 GROW
@@ -236,9 +238,7 @@ public class ExCoverAlgorithm {
             double xStarGivenNotC = qualityFunction.probXGivenNotC(negativeTransactionDatabase, tStarNegative);
 
             if (xStarGivenC >= xStarGivenNotC) {
-                synchronized (this) {
-                    add(tStarPositive, xClosed, qualityXStar, numOfAttributes);
-                }
+                add(tStarPositive, xClosed, qualityXStar, numOfAttributes);
             }
             total += grow(xClosed, tStarPositive, tStarNegative, lastAddedCoreItemInOrderXPrime, 0, 0);
 

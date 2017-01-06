@@ -3,12 +3,12 @@ import numpy as np
 import array as arr
 import os
 
-columnCount = 23
+columnCount = 116
 
-positiveClass = 'e'
+positiveClass = '1'
 delim = ','
 
-cls = 'mushroom'
+cls = 'dota2'
 
 
 with open('pythoninput/' + cls + '/' + cls + '.data', 'rb') as csvfile:

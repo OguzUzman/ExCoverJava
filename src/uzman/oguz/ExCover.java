@@ -93,7 +93,7 @@ public class ExCover {
             if(logToFile) {
 
                 try {
-                    String logFilePath = Paths.get("logs", path+".txt").toString();
+                    String logFilePath = Paths.get("logs", path+"_t="+numOfThreads+".txt").toString();
                     File logFile = new File(logFilePath);
                     BufferedWriter bwr = new BufferedWriter(new FileWriter(logFile));
 
